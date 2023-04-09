@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="const">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans&family=Noto+Sans+KR&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .container {
+        display: grid;
+        place-items: center;
+        border: 2px dotted black;
+        padding: 20px;
+        width: fit-content;
+        margin: auto;
+        margin-top: 200px;
+      }
+
+      .game {
+        display: flex;
+        flex-direction: row;
+        gap: 20px;
+      }
+
+      .controls {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: min-content;
+        font-family: 'Noto Sans KR', 'Noto Sans', sans-serif;
+      }
+      .controls_row2 {
+        display: flex;
+        flex-direction: row;
+      }
+
+      .control_btn {
+        color: black;
+        background-color: rgb(112, 188, 255);
+        border: 0;
+        border-radius: 2px;
+        padding: 3px 6px;
+        margin-inline: 2px;
+      }
+
+      .control_btn:disabled {
+        color: rgb(65, 109, 148);
+        background-color: rgb(65, 109, 148);
+      }
+
+      .up {
+        border-top-right-radius: 5px;
+        border-top-left-radius: 5px;
+        margin-bottom: 4px;
+      }
+
+      .right {
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
+      }
+      .left {
+        border-top-left-radius: 5px;
+        border-bottom-left-radius: 5px;
+      }
+
+      .pin {
+        margin-top: 30px;
+        display: flex;
+        gap: 4px;
+      }
+
+      .color {
+        display: block;
+        width: 12px;
+        height: 12px;
+        background-color: gray;
+        border-radius: 3px;
+      }
+
+      .color.c1 {
+        background-color: rgb(255, 73, 73);
+      }
+      .color.c2 {
+        background-color: rgb(60, 199, 25);
+      }
+      .color.c3 {
+        background-color: rgb(72, 96, 255);
+      }
+
+      .life {
+        display: flex;
+        flex-direction: row;
+        gap: 3px;
+        margin-bottom: 10px;
+      }
+
+      .life_item {
+        display: block;
+        width: 15px;
+        height: 20px;
+        background-color: black;
+        border-radius: 3px;
+      }
+      .life_item.live {
+        background-color: rgb(175, 0, 0);
+      }
+      .life_item.dead {
+        background-color: rgb(73, 73, 73);
+      }
+
+      .container.hurt {
+        animation-name: hurt;
+        animation-duration: 0.4s;
+        animation-iteration-count: 2;
+        box-shadow: 0px 0px 39px 4px rgba(255, 0, 0, 0.49);
+        -webkit-box-shadow: 0px 0px 39px 4px rgba(255, 0, 0, 0.49);
+        -moz-box-shadow: 0px 0px 39px 4px rgba(255, 0, 0, 0.49);
+        background-color: rgba(255, 0, 0, 0.49);
+      }
+
+      @keyframes hurt {
+        0% {
+          translate: 0 0;
+        }
+        33% {
+          translate: 10px 0;
+        }
+        66% {
+          translate: -10px 0;
+        }
+        100% {
+          translate: 0 0;
+        }
+      }
+
+      .code {
+        margin-top: 20px;
+        font-family: 'Noto Sans KR', 'Noto Sans', sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="life"></div>
+      <div class="game">
+        <canvas class="canvas"></canvas>
+        <div>
+          <div class="controls">
+            <button class="control_btn up">▲</button>
+            <div class="controls_row2">
+              <button class="control_btn left">◀</button>
+              <button class="control_btn down">▼</button>
+              <button class="control_btn right">▶</button>
+            </div>
+          </div>
+          <div class="pin"></div>
+        </div>
+      </div>
+      <div class="code"></div>
+    </div>
+
+    <script>
+      const canvas = document.querySelector('.canvas');
+
+      const container = document.querySelector('.container');
+      const code = document.querySelector('.code');
+
+      const btnUp = document.querySelector('.up');
+      const btnDown = document.querySelector('.down');
+      const btnLeft = document.querySelector('.left');
+      const btnRight = document.querySelector('.right');
+
+      const pin = document.querySelector('.pin');
+
+      const lifePanel = document.querySelector('.life');
+
+      const [width, height] = [130, 130];
+
+      let life = 3;
+
+      const variation = Math.ceil(Math.random() * 2);
+
+      const variationPinCode = [132212, 323112, 321313];
+
+      `${variationPinCode[variation]}`.split('').forEach((n) => {
+        const color = document.createElement('div');
+        color.classList.add('color');
+        color.classList.add(`c${n}`);
+        pin.appendChild(color);
+      });
+
+      canvas.width = width;
+      canvas.height = height;
+
+      let isShowMaze = true;
+
+      const ctx = canvas.getContext('2d');
+
+      let maps = [
+        [
+          [c(0, 0), c(0, 1), c(1, 0), c(0, 0), c(0, 1), c(0, 1)],
+          [c(1, 0), c(0, 0), c(1, 1), c(0, 1), c(0, 1), c(0, 0)],
+          [c(1, 0), c(0, 1), c(1, 0), c(0, 0), c(0, 1), c(0, 0)],
+          [c(1, 0), c(0, 1), c(0, 1), c(1, 1), c(0, 1), c(0, 0)],
+          [c(0, 0), c(0, 1), c(1, 0), c(0, 0), c(1, 1), c(0, 0)],
+          [c(0, 0), c(1, 0), c(0, 0), c(1, 0), c(0, 0), c(0, 0)],
+        ],
+        [
+          [c(0, 1), c(0, 0), c(1, 1), c(0, 0), c(0, 0), c(0, 1)],
+          [c(0, 0), c(1, 1), c(0, 0), c(1, 1), c(0, 1), c(0, 0)],
+          [c(1, 0), c(0, 0), c(1, 1), c(0, 0), c(0, 1), c(0, 0)],
+          [c(0, 0), c(1, 1), c(0, 0), c(1, 1), c(1, 0), c(0, 0)],
+          [c(1, 0), c(1, 0), c(1, 0), c(0, 0), c(1, 1), c(0, 0)],
+          [c(1, 0), c(0, 0), c(1, 0), c(0, 0), c(0, 0), c(0, 0)],
+        ],
+        [
+          [c(1, 0), c(0, 0), c(0, 1), c(0, 1), c(0, 0), c(0, 0)],
+          [c(1, 0), c(1, 0), c(0, 0), c(1, 1), c(1, 0), c(0, 0)],
+          [c(0, 0), c(0, 1), c(1, 1), c(0, 0), c(1, 1), c(0, 0)],
+          [c(1, 0), c(1, 0), c(0, 0), c(1, 1), c(0, 1), c(0, 0)],
+          [c(1, 0), c(1, 0), c(1, 0), c(0, 0), c(1, 0), c(0, 1)],
+          [c(0, 0), c(1, 0), c(0, 0), c(1, 0), c(0, 0), c(0, 0)],
+        ],
+      ];
+
+      let map = maps[variation];
+
+      const player = {
+        x: Math.ceil(Math.random() * 5),
+        y: Math.ceil(Math.random() * 5),
+      };
+
+      const dest = {
+        x: Math.ceil(Math.random() * 5),
+        y: Math.ceil(Math.random() * 5),
+      };
+
+      draw();
+
+      lifeRender(life);
+
+      function draw() {
+        ctx.fillStyle = 'black';
+
+        ctx.fillRect(0, 0, width, height);
+
+        const space = (width - 20) / 6;
+
+        line(space / 2, space / 2, 0, space * 6);
+        line(space / 2, space / 2, space * 6, 0);
+        line(space * 6 + space / 2, space / 2, 0, space * 6);
+        line(space / 2, space * 6 + space / 2, space * 6, 0);
+
+        for (let i = 0; i < 6; i++) {
+          for (let j = 0; j < 6; j++) {
+            ctx.fillStyle = `gray`;
+            ctx.fillRect((i + 1) * space - 3, (j + 1) * space - 3, 6, 6);
+
+            const currentCell = map[i][j];
+
+            ctx.fillStyle = `white`;
+            if (isShowMaze) {
+              if (currentCell.right) {
+                line((j + 1) * space + space / 2, (i + 1) * space - space / 2, 0, space);
+              }
+              if (currentCell.down) {
+                line((j + 1) * space - space / 2, (i + 1) * space + space / 2, space, 0);
+              }
+            }
+          }
+        }
+
+        ctx.fillStyle = `#11ff11`;
+        ctx.fillRect(space * (player.x + 1) - 3, space * (player.y + 1) - 3, 6, 6);
+
+        ctx.fillStyle = `#ff1919`;
+        ctx.fillRect(space * (dest.x + 1) - 3, space * (dest.y + 1) - 3, 6, 6);
+      }
+
+      function c(right, down) {
+        return { right: !!right, down: !!down };
+      }
+
+      function line(x, y, w, h, lineWidth = 2) {
+        ctx.lineWidth = lineWidth;
+        ctx.beginPath();
+        ctx.strokeStyle = 'white';
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + w, y + h);
+        // ctx.fill();
+        ctx.closePath();
+        ctx.stroke();
+      }
+
+      function lifeRender() {
+        lifePanel.innerHTML = '';
+
+        for (let index = 0; index < life; index++) {
+          const live = document.createElement('div');
+          live.classList.add('life_item');
+          live.classList.add('live');
+
+          lifePanel.appendChild(live);
+        }
+        for (let index = 0; index < 3 - life; index++) {
+          const dead = document.createElement('div');
+          dead.classList.add('life_item');
+          dead.classList.add('dead');
+
+          lifePanel.appendChild(dead);
+        }
+      }
+
+      btnUp.addEventListener('click', () => {
+        if (player.y === 0) return lifeDecrease();
+        if (!map[player.y - 1][player.x].down) {
+          player.y = player.y - 1;
+        } else {
+          lifeDecrease();
+        }
+        draw();
+        lifeRender();
+        check();
+      });
+      btnDown.addEventListener('click', () => {
+        if (player.y === 5) return lifeDecrease();
+        if (!map[player.y][player.x].down) {
+          player.y = player.y + 1;
+        } else {
+          lifeDecrease();
+        }
+        draw();
+        lifeRender();
+        check();
+      });
+      btnLeft.addEventListener('click', () => {
+        if (player.x === 0) return lifeDecrease();
+        if (!map[player.y][player.x - 1].right) {
+          player.x = player.x - 1;
+        } else {
+          lifeDecrease();
+        }
+        draw();
+        lifeRender();
+        check();
+      });
+      btnRight.addEventListener('click', () => {
+        if (player.x === 5) return lifeDecrease();
+        if (!map[player.y][player.x].right) {
+          player.x = player.x + 1;
+        } else {
+          lifeDecrease();
+        }
+        draw();
+        lifeRender();
+        check();
+      });
+
+      function check() {
+        if (player.x === dest.x && player.y === dest.y) {
+          code.innerText = '1234';
+        }
+      }
+
+      function lifeDecrease() {
+        life--;
+
+        btnUp.disabled = true;
+        btnDown.disabled = true;
+        btnLeft.disabled = true;
+        btnRight.disabled = true;
+        container.classList.add('hurt');
+        setTimeout(() => {
+          btnUp.disabled = false;
+          btnDown.disabled = false;
+          btnLeft.disabled = false;
+          btnRight.disabled = false;
+          container.classList.remove('hurt');
+          if (life === 0) {
+            alert('Game Over! 핀을 다시 입력하세요.');
+            window.location.reload();
+          }
+        }, 800);
+      }
+    </script>
+  </body>
+</html>
