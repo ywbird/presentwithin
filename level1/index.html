@@ -7,7 +7,7 @@
     <title>Document</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
+    <link`
       href="https://fonts.googleapis.com/css2?family=Noto+Sans&family=Noto+Sans+KR&display=swap"
       rel="stylesheet"
     />
@@ -240,6 +240,18 @@
         x: Math.ceil(Math.random() * 5),
         y: Math.ceil(Math.random() * 5),
       };
+
+      function getDest() {
+        const tempDest = {
+          x: Math.ceil(Math.random() * 5),
+          y: Math.ceil(Math.random() * 5),
+        };
+        if (tempDest.x === player.x || tempDest.y === player.y) {
+          return getDest();
+        } else {
+          return tempDest;
+        }
+      }
 
       draw();
 
