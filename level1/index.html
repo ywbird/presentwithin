@@ -241,12 +241,19 @@
 
       let map = maps[variation];
 
+      // const player = {
+      //   x: Math.ceil(Math.random() * 5),
+      //   y: Math.ceil(Math.random() * 5),
+      // };
       const player = {
-        x: Math.ceil(Math.random() * 5),
-        y: Math.ceil(Math.random() * 5),
+        x: 0,
+        y: 0,
       };
 
-      const dest = getDest();
+      const dest = {
+        x: 5,
+        y: 5,
+      };
 
       function getDest() {
         const tempDest = {
