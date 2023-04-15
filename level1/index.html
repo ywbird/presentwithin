@@ -7,7 +7,7 @@
     <title>Document</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
+    <link`
       href="https://fonts.googleapis.com/css2?family=Noto+Sans&family=Noto+Sans+KR&display=swap"
       rel="stylesheet"
     />
@@ -143,6 +143,13 @@
         margin-top: 20px;
         font-family: 'Noto Sans KR', 'Noto Sans', sans-serif;
       }
+
+      .side {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
     </style>
   </head>
   <body>
@@ -150,7 +157,7 @@
       <div class="life"></div>
       <div class="game">
         <canvas class="canvas"></canvas>
-        <div>
+        <div class="side">
           <div class="controls">
             <button class="control_btn up">▲</button>
             <div class="controls_row2">
@@ -239,10 +246,19 @@
         y: Math.ceil(Math.random() * 5),
       };
 
-      const dest = {
-        x: Math.ceil(Math.random() * 5),
-        y: Math.ceil(Math.random() * 5),
-      };
+      const dest = getDest();
+
+      function getDest() {
+        const tempDest = {
+          x: Math.ceil(Math.random() * 5),
+          y: Math.ceil(Math.random() * 5),
+        };
+        if (tempDest.x === player.x || tempDest.y === player.y) {
+          return getDest();
+        } else {
+          return tempDest;
+        }
+      }
 
       draw();
 
