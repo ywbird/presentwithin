@@ -184,9 +184,12 @@
 
       let life = 3;
 
-      const variation = Math.ceil(Math.random() * 2);
+      // const variation = Math.ceil(Math.random() * 2);
+      const variation = localStorage.getItem('variation') || Math.ceil(Math.random() * 2);
+      localStorage.setItem('variation', variation);
 
       const variationPinCode = [132212, 323112, 321313];
+      const variationVerifCode = [920837, 798214, 210396];
 
       `${variationPinCode[variation]}`.split('').forEach((n) => {
         const color = document.createElement('div');
@@ -364,7 +367,7 @@
 
       function check() {
         if (player.x === dest.x && player.y === dest.y) {
-          code.innerText = '1234';
+          code.innerText = `${variationVerifCode[variation]}`;
         }
       }
 
