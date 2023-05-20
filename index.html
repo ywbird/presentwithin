@@ -9,7 +9,7 @@
   <body>
     <p id="pin">48366</p>
     <form class="form">
-      <input class="number" type="number" /><input class="submit" type="submit" />
+      <input class="number" type="text" /><input class="submit" type="submit" />
     </form>
     <p class="link"></p>
 
@@ -20,16 +20,21 @@
 
       const link = document.querySelector('.link');
 
-      const pin = 34782;
+      const pin = '34782';
+      const helpToken = 'I Wanna Password';
 
       const linkEl = document.createElement('a');
       linkEl.href = 'level1';
       linkEl.innerText = 'To Level 1.';
+      const lvl4El = document.createElement('p');
+      lvl4El.innerText = '773128';
 
       form.addEventListener('submit', (e) => {
         e.preventDefault();
-        if (pinInput.valueAsNumber === pin) {
+        if (pinInput.value === pin) {
           link.appendChild(linkEl);
+        } else if (pinInput.value === helpToken) {
+          link.appendChild(lvl4El);
         }
       });
     </script>
